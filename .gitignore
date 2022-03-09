@@ -50,3 +50,6 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+Deluppg4 - on-off/deluppg4.lss
+Deluppg4 - on-off/main.P
+Deluppg4 - on-off/serial.P
