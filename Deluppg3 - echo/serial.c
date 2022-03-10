@@ -1,13 +1,12 @@
 #include <avr/io.h>
 #include <util/delay.h>
+#include <string.h>
 #include "serial.h"
 
 #define F_OSC 	16000000 // Clock Speed
 #define BAUD 	38400
 
-#define MAX_STR_LEN 20
-
-char string_buffer[MAX_STR_LEN];
+#define MAX_STR_LEN 22
 
 /* Initializes the UART/USART port for serial communication. */
 void uart_init(void) {
@@ -46,14 +45,11 @@ void uart_putchar( unsigned char data ) {
 void uart_putstr(char string[MAX_STR_LEN]) {
 	int i =0;
 	
-	while (string[i] != 0x00) {
+	while (string[i] != 0x00 && i >= MAX_STR_LEN) {
 		uart_putchar(string[i]);
 		i++;
-		if (i >= MAX_STR_LEN) {
-			break;
-		}
 	}
-	handle_newline();
+ 	handle_newline();
 }
 
 /* Sending '\n'  '\r' */
@@ -76,20 +72,17 @@ unsigned char uart_getchar( void ) {
 	return UDR0;
 }
 
+/* Echos back the input from the serial monitor */
 void uart_echo(void) {	
-	int i = 0;
-
 	if (UCSR0A & (1 << RXC0)) {
-		string_buffer[i] = (unsigned char) uart_getchar();
-		
-		if (i >= MAX_STR_LEN) {
-			uart_putstr("Mem overflow.\n");
+		char c = uart_getchar();
+		/* Handles new line and return carriage. */
+		if (c == '\n' || c == '\r') {
+			uart_putchar('\n');
+			uart_putchar('\r');
 		}
-		if(string_buffer[i] == '\0') {
-			handle_newline();
+		else {
+			uart_putchar(c);
 		}
-		uart_putchar(string_buffer[i]);  //maybe a print array function.
-		i++;
-	}
-	
+	}	
 }
